@@ -21,6 +21,8 @@ export default class CubeScene {
         this.renderer = new Renderer({ gl });
         this.renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight);
 
+        this.renderer.setClearColor(0x000000, 0);
+
         this.setupLighting();
         this.createCube();
         this.camera.position.z = 2;

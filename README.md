@@ -1,4 +1,4 @@
-# Título do projeto
+# LudiAR
 
 Um parágrafo da descrição do projeto vai aqui
 

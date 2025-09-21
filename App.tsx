@@ -1,39 +1,42 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { GLView } from 'expo-gl';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import CubeScene from './src/scenes/CubeScene';
+import ARScene from './src/scenes/ARScene';
 
 export default function App() {
   const [permission, requestPermission] = useCameraPermissions();
-  const [cubeScene, setCubeScene] = useState<CubeScene | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [arScene, setArScene] = useState<ARScene | null>(null);
+  const { width, height } = useWindowDimensions();
 
   useEffect(() => {
     return () => {
-      if (cubeScene) {
-        cubeScene.dispose();
+      if (arScene) {
+        arScene.dispose();
       }
     };
-  }, [cubeScene]);
-
-  useEffect(() => {
-    if (permission !== null) {
-      setIsLoading(false);
-    }
-  }, [permission]);
+  }, [arScene]);
 
   const onContextCreate = (gl: any) => {
-    try {
-      const scene = new CubeScene(gl);
-      setCubeScene(scene);
-    } catch (error) {
-      console.error('Error creating cube scene:', error);
+    const scene = new ARScene(gl);
+    setArScene(scene);
+  };
+
+  const onBarcodeScanned = (result: any) => {
+    if (arScene && result.data) {
+      arScene.updateViewportSize(width, height);
+      arScene.placeObjectAtQR(result.data, result.bounds);
     }
   };
 
-  if (isLoading || permission === null) {
+  const clearObjects = () => {
+    if (arScene) {
+      arScene.clearObjects();
+    }
+  };
+
+  if (!permission) {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>LudiAR</Text>
@@ -55,16 +58,32 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onLayout={() => arScene?.updateViewportSize(width, height)}>
       <CameraView
         style={styles.camera}
         facing="back"
-        onCameraReady={() => console.log('Camera is ready')}
+        barcodeScannerSettings={{
+          barcodeTypes: ["qr"],
+        }}
+        onBarcodeScanned={onBarcodeScanned}
       />
       <GLView
         style={styles.glView}
         onContextCreate={onContextCreate}
       />
+
+      <View style={styles.controls}>
+        <TouchableOpacity style={styles.controlButton} onPress={clearObjects}>
+          <Text style={styles.controlButtonText}>🗑️ Limpar</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.instructions}>
+        <Text style={styles.instructionText}>
+          Aponte para um QR Code
+        </Text>
+      </View>
+
       <StatusBar style="auto" />
     </View>
   );
@@ -73,8 +92,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -115,5 +132,35 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  controls: {
+    position: 'absolute',
+    top: 60,
+    right: 20,
+  },
+  controlButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  controlButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  instructions: {
+    position: 'absolute',
+    bottom: 100,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    padding: 15,
+    borderRadius: 10,
+  },
+  instructionText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 16,
   },
 });

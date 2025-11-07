@@ -39,10 +39,18 @@
         "@reactvision/react-viro",
         {
           "android": {
-            "xRMode": ["AR", "OVR_MOBILE"]
+            "xRMode": [
+              "AR",
+              "OVR_MOBILE"
+            ]
           }
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "231040c1-0466-49e3-8aa6-c68c348f806d"
+      }
+    }
   }
 }

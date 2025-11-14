@@ -72,11 +72,26 @@
 //   },
 // });
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import ActivityScreen from "./ActivityScreen";
+import SplashScreen from "./SplashScreen";
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 3000); // Show splash for at least 3 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (showSplash) {
+    return <SplashScreen />;
+  }
+
   return (
     <View style={styles.container}>
       <ActivityScreen />

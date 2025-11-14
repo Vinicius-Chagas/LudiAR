@@ -21,8 +21,12 @@ type Question = {
 
 type ScreenState = "home" | "question" | "correct" | "wrong" | "gameOver";
 
-const ActivityScreen: React.FC = () => {
-  const [screenState, setScreenState] = useState<ScreenState>("home");
+interface ActivityScreenProps {
+  onClose?: () => void;
+}
+
+const ActivityScreen: React.FC<ActivityScreenProps> = ({ onClose }) => {
+  const [screenState, setScreenState] = useState<ScreenState>("question");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [hearts, setHearts] = useState(3);
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -150,6 +154,13 @@ const ActivityScreen: React.FC = () => {
     setScreenState("question");
   };
 
+  // Initialize quiz when component mounts
+  useEffect(() => {
+    setCurrentQuestionIndex(0);
+    setHearts(3);
+    setScreenState("question");
+  }, []);
+
   const loseHeart = () => {
     const newHearts = hearts - 1;
     setHearts(newHearts);
@@ -170,11 +181,11 @@ const ActivityScreen: React.FC = () => {
 
       // Check if it's the last question
       if (currentQuestionIndex === questions.length - 1) {
-        // Last question - return to home after green screen
+        // Last question - return to AR camera after green screen
         setTimeout(() => {
-          setScreenState("home");
-          setCurrentQuestionIndex(0);
-          setHearts(3);
+          if (onClose) {
+            onClose();
+          }
         }, 1500);
       } else {
         // Move to next question
@@ -195,10 +206,12 @@ const ActivityScreen: React.FC = () => {
         if (newHearts > 0) {
           setScreenState("question");
         } else {
-          // Game over - show red screen, then automatically return to home
+          // Game over - show red screen, then automatically return to AR camera
           setScreenState("gameOver");
           setTimeout(() => {
-            handleGameOverScreen();
+            if (onClose) {
+              onClose();
+            }
           }, 500);
         }
       }, 1500);
@@ -206,24 +219,12 @@ const ActivityScreen: React.FC = () => {
   };
 
   const handleGameOverScreen = () => {
-    setScreenState("home");
-    setCurrentQuestionIndex(0);
-    setHearts(3);
+    // This function is no longer used, but kept for compatibility
+    if (onClose) {
+      onClose();
+    }
   };
 
-  // Home screen
-  if (screenState === "home") {
-    return (
-      <View style={styles.container}>
-        <TouchableOpacity
-          style={styles.startButton}
-          onPress={startQuiz}
-        >
-          <Text style={styles.startButtonText}>Iniciar Quiz</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
 
   // Game over screen
   if (screenState === "gameOver") {

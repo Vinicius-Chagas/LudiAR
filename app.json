@@ -29,7 +29,13 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.vinicius.chagas.ViroCube"
+      "package": "com.vinicius.chagas.ViroCube",
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -49,7 +55,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "231040c1-0466-49e3-8aa6-c68c348f806d"
+        "projectId": "e1651778-b40e-4738-94a4-44bc995f8745"
       }
     }
   }
